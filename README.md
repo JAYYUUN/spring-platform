@@ -150,3 +150,5 @@ Ingress를 통해 외부에 노출된다.
 - 보안과 운영을 함께 고려한
 
 플랫폼 아키텍처를 구현하는 것을 목표로 한다.
+
+블로그 작업 : https://a-gentle-breeze.tistory.com/category/CI%26CD%28Github%20Actions%20-%20ArgoCD%29%20%2B%20grafana
