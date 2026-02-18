@@ -20,7 +20,7 @@ resource "kubernetes_manifest" "spring_app" {
       source = {
         repoURL        = "https://github.com/JAYYUUN/spring-platform"
         targetRevision = "main"
-        path           = "gitops/argocd"
+        path           = "gitops/apps/spring-app"
       }
       destination = {
         server    = "https://kubernetes.default.svc"
