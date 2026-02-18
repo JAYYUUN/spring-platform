@@ -10,7 +10,7 @@ variable "eks_cluster_name" {
 
 variable "vpc_id" {
   type    = string
-  default = "vpc-0f9279eafa69d936f"
+  default = "vpc-0bb1924c46291fa1f"
 }
 
  
