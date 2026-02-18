@@ -71,13 +71,9 @@ jobs:
           IMAGE_TAG_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-
           FILE="gitops/apps/spring-app/deployment.yaml"
-
-	       
           sed -i "s/:REPLACE_ME/:${IMAGE_TAG_SHA}/g" "$FILE"
 
- 	      
           if git diff --quiet -- "$FILE"; then
             echo "No changes in $FILE"
             exit 0
@@ -89,4 +85,5 @@ jobs:
           git add "$FILE"
           git commit -m "chore: deploy ${IMAGE_TAG_SHA} [skip ci]"
           git push origin HEAD:${{ github.ref_name }}
+
 
