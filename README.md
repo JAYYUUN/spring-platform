@@ -150,17 +150,3 @@ Ingress를 통해 외부에 노출된다.
 - 보안과 운영을 함께 고려한
 
 플랫폼 아키텍처를 구현하는 것을 목표로 한다.
-🔥 적용 방법
-로컬에서 README.md 열기
-
-기존 내용 전부 삭제
-
-위 Markdown 그대로 붙여넣기
-
-저장
-
-git add README.md
-
-git commit -m "docs: update README"
-
-git push
