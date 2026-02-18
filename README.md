@@ -17,30 +17,15 @@ EKS 기반 GitOps 배포 아키텍처 설계 프로젝트
 ---
 
 ## Core Architecture Design
-'''
-Developer
-│
-▼
-GitHub (main)
-│
-▼
-GitHub Actions (CI)
-│
-▼
-Amazon ECR
-│
-▼
-Argo CD (CD / GitOps)
-│
-▼
-Amazon EKS
-│
-▼
-ALB + TLS
-│
-▼
-End Users
-'''
+```mermaid
+flowchart TD
+    A[Developer] --> B[GitHub main]
+    B --> C[GitHub Actions CI]
+    C --> D[Amazon ECR]
+    D --> E[Argo CD GitOps]
+    E --> F[Amazon EKS]
+    F --> G[ALB + TLS]
+    G --> H[End Users]
 
 ---
 
