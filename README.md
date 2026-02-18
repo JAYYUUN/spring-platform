@@ -17,7 +17,7 @@ EKS 기반 GitOps 배포 아키텍처 설계 프로젝트
 ---
 
 ## Core Architecture Design
-
+'''
 Developer
 │
 ▼
@@ -40,7 +40,7 @@ ALB + TLS
 │
 ▼
 End Users
-
+'''
 
 ---
 
