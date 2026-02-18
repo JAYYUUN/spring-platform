@@ -46,7 +46,7 @@ variable "github_owner" {
 
 variable "github_repo" {
   type    = string
-  default = "spring-demo-eks2"
+  default = "spring-platform"
 }
 
 variable "github_branch" {
