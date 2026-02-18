@@ -17,6 +17,7 @@ EKS 기반 GitOps 배포 아키텍처 설계 프로젝트
 ---
 
 ## Core Architecture Design
+
 ```mermaid
 flowchart TD
     A[Developer] --> B[GitHub main]
@@ -26,7 +27,7 @@ flowchart TD
     E --> F[Amazon EKS]
     F --> G[ALB + TLS]
     G --> H[End Users]
-
+```
 ---
 
 ## 1. CI와 CD의 분리 설계
