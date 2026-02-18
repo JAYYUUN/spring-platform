@@ -1,0 +1,8 @@
+server:
+  service:
+    type: ClusterIP
+
+crds:
+  install: true
+
+# Argo CD의 server 컴포넌트를 Kubernetes Service 중에서 ClusterIP 타입으로 생성해라

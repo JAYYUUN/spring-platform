@@ -1,0 +1,16 @@
+
+1. AWS Load Balancer Controller가 Ingress의 설정 정보를 토대로 AWS 리소스를 생성, 수정하려면 
+먼저 OIDC Provider를 통해 Role 부여를 해 주어야 하며,   
+EKS에 AWS Load Balancer Controller를 설치하기 위해, 먼저 EKS OIDC Issuer를 기반으로 IAM OIDC Provider를 준비하고, 그 Provider를 신뢰하는 IAM Role(Trust policy에 특정 ServiceAccount sub 지정) 을 만든다. 
+
+(시스템 간 OIDC – AWS Load Balancer Controller & AWS)
+1) 시스템(AWS Load Balancer Controller 등)은 OIDC Provider로부터 ID Token(JWT)을 발급받는다.
+2) 시스템은 해당 ID Token을 신뢰 대상(AWS STS 등)에 전달한다.
+3) 신뢰 대상은 ID Token의 issuer(토큰 발급 서버), TLS fingerprint(토큰 발급 서버 인증서), audience(신뢰 대상), subject(역할을 부여받을 주체)를 검증한다.
+4) 검증이 성공하면 신뢰 대상은 임시 자격증명(예: IAM Role 권한)을 발급한다.
+
+그리고 Controller가 AWS 리소스(ALB/TargetGroup/Listener/Rule)를 만들 수 있도록 Controller 전용 IAM Policy(최소권한) 를 Role에 붙인다. 
+
+Helm을 통해 AWS Load Balancer Controller를 설치한다. 
+설치 하면서 “이 컨트롤러는 이 ServiceAccount를 써라”고 설정하고, 그 ServiceAccount에는 “이 IAM Role을 써도 된다”는 어노테이션을 붙인다.
+그러면 컨트롤러 파드는 OIDC 기반으로 STS에 접근해 AssumeRoleWithWebIdentity 방식으로 AWS 권한을 얻는다.

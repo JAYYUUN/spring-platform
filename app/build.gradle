@@ -1,0 +1,37 @@
+plugins { //이 프로젝트는 무엇으로 동작하는가 
+	id 'java' //이 프로젝트는 Java 프로젝트다
+	id 'org.springframework.boot' version '4.0.1' //“이 프로젝트는 Spring Boot 애플리케이션이다
+	id 'io.spring.dependency-management' version '1.1.7' //Spring이 권장하는 라이브러리 버전을 자동으로 맞춰라
+}
+
+group = 'com.example' //이 프로젝트의 패키지 소속
+version = '0.0.1-SNAPSHOT' //이 프로젝트의 버전
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17) //Java 버전 고정
+	}
+}
+
+repositories { //라이브러리는 어디서 받아오나
+	mavenCentral() //mavenCentral()
+}
+
+dependencies { //이 프로젝트가 무슨 기능을 가지는지 결정
+	/*implementation : 실제 실행 시 필요한 라이브러리*/
+    implementation 'org.springframework.boot:spring-boot-starter-web' 
+	/*Tomcat (웹 서버), Spring MVC, JSON 처리(Jackson), DispatcherServlet, 이게 있어서 8080이 열린 것 */
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' 
+	/*Actuator = 서버 상태를 밖으로 보여주는 창문, Actuator를 넣으면 Spring이 자동으로 몇 개의 URL을 만들어줌 */
+	/*/actuator/health : 서버 UP/DOWN 확인*/
+	implementation 'io.micrometer:micrometer-registry-prometheus' 
+	
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') { //테스트 실행 방식
+	useJUnitPlatform() //테스트는 JUnit 5 방식으로 실행해라
+}
+

@@ -1,0 +1,91 @@
+name: Build & Deploy to EKS (ECR + OIDC)
+
+on:
+  push:
+    branches: ["main"] # main 브랜치에 push가 발생하면 자동으로 실행
+    paths:
+      - "app/**"
+      - ".github/workflows/**" # 이 경로에 변경이 있을 때만 workflow를 실행해라
+  workflow_dispatch: # GitHub Actions 화면에서 버튼 눌러서 수동 실행 가능
+
+permissions:
+  id-token: write   # OIDC 토큰 발급 권한 (STS AssumeRoleWithWebIdentity에 필요)
+  contents: write   # GITHUB_TOKEN으로 커밋/푸시하려면 필요
+
+env: # workflow 전체에서 공통으로 쓰는 변수
+  AWS_REGION: ap-northeast-2
+
+  # ===== ECR =====
+  ECR_REPOSITORY: my-spring-app
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+# 같은 브랜치(main)에 여러 push가 연달아 들어오면 이전 실행을 취소하고 최신 실행만 남김
+
+jobs:
+  deploy:
+    # 봇이 만든 커밋이면 job 자체를 스킵 (paths-ignore와 함께 2중 안전장치)
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # repo 코드를 runner(가상머신)에 checkout
+        with:
+          fetch-depth: 0
+          persist-credentials: true # git push 시 GITHUB_TOKEN 사용 가능
+
+      # OIDC로 AWS Role Assume (Terraform로 만든 Role ARN)
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::586794453466:role/GitHubActions-ECR-EKS
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+        # runner의 docker가 ECR에 로그인
+
+      # 이미지 태그: 커밋 SHA(고정) + latest(편의)
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          IMAGE_URI_SHA="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG_SHA}"
+          IMAGE_URI_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+
+          echo "Build -> ${IMAGE_URI_SHA}"
+          docker build -f app/dockerfile -t "${IMAGE_URI_SHA}" -t "${IMAGE_URI_LATEST}" app
+
+          echo "Push -> ${IMAGE_URI_SHA}"
+          docker push "${IMAGE_URI_SHA}"
+          docker push "${IMAGE_URI_LATEST}"
+
+      - name: Update deployment image tag (GitOps trigger)
+        env:
+          IMAGE_TAG_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          FILE="gitops/apps/spring-app/deployment.yaml"
+
+	       
+          sed -i "s/:REPLACE_ME/:${IMAGE_TAG_SHA}/g" "$FILE"
+
+ 	      
+          if git diff --quiet -- "$FILE"; then
+            echo "No changes in $FILE"
+            exit 0
+          fi
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+          git add "$FILE"
+          git commit -m "chore: deploy ${IMAGE_TAG_SHA} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
