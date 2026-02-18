@@ -89,3 +89,4 @@ jobs:
           git add "$FILE"
           git commit -m "chore: deploy ${IMAGE_TAG_SHA} [skip ci]"
           git push origin HEAD:${{ github.ref_name }}
+
